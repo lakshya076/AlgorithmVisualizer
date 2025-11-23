@@ -5,8 +5,10 @@
 #include <QList>
 #include <QVariant>
 #include <QVector>
-#include "tree.h" // Our BST
-#include "avl.h"  // <-- 1. INCLUDE THE AVL HEADER
+#include "tree.h"
+#include "avl.h"
+#include "graph.h"
+#include "maze.h"
 
 class VisualizerController : public QObject
 {
@@ -16,26 +18,22 @@ public:
     explicit VisualizerController(QObject *parent = nullptr);
 
 signals:
-    // Signal sent to the canvas to draw a new step
     void requestRedraw(const QVariant& step);
+    void logMessage(const QString& message);
 
 public slots:
-    // Slots connected to UI buttons
     void onStart();
     void onPause();
     void onStop();
     void onNext();
     void onPrevious();
+
     void onShuffle();
 
-    // Slot connected to the algorithm dropdown
     void onAlgorithmSelected(const QString& algName);
-
-    // Slot connected to the speed slider
     void onSpeedChanged(int value);
 
 private slots:
-    // Slot connected to the timer's timeout
     void onTimerTick();
 
 private:
@@ -43,10 +41,15 @@ private:
     QList<QVariant> m_stepHistory;
     int m_currentStep;
     int m_timerInterval;
-    QVector<int> m_initialData; // Stores the shuffled data
 
-    BST m_bst; // Our BST object
-    AVL m_avl; // <-- 2. ADD THE AVL OBJECT
+    QVector<int> m_randomData; // Shared by Sorting and Trees
 
-    void generateInitialData();
+    BST m_bst;
+    AVL m_avl;
+    Graph m_graph;
+    Maze m_maze;
+
+    bool m_graphGenerated;
+
+    void generateRandomData();
 };

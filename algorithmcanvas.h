@@ -21,4 +21,5 @@ private:
     QVariant m_currentStep;
     void drawSortingStep(QPainter& painter, const SortingStep& step);
     void drawGraphStep(QPainter& painter, const GraphStep& step);
+    void drawMazeStep(QPainter& painter, const MazeStep& step);
 };

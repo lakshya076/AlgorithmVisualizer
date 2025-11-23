@@ -11,8 +11,10 @@ CONFIG += c++17
 SOURCES += \
     algorithmcanvas.cpp \
     avl.cpp \
+    graph.cpp \
     main.cpp \
     mainwindow.cpp \
+    maze.cpp \
     sorting.cpp \
     tree.cpp \
     visualizercontroller.cpp
@@ -21,7 +23,9 @@ HEADERS += \
     algorithmcanvas.h \
     avl.h \
     datastructures.h \
+    graph.h \
     mainwindow.h \
+    maze.h \
     sorting.h \
     tree.h \
     visualizercontroller.h

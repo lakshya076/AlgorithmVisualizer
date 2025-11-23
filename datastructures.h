@@ -21,7 +21,7 @@ struct SortingStep {
 
 struct NodeState {
     int id;
-    QString label;
+    QString label;     // Now will show "ID (Dist)"
     QPointF position;
     QColor color;
     QColor textColor;
@@ -33,8 +33,9 @@ struct EdgeState {
     int fromId;
     int toId;
     QColor color;
+    QString weightLabel;
 
-    EdgeState() : fromId(-1), toId(-1), color(Qt::white) {}
+    EdgeState() : fromId(-1), toId(-1), color(Qt::white), weightLabel("") {}
 };
 
 struct GraphStep {
@@ -43,7 +44,20 @@ struct GraphStep {
     QString statusMessage;
 };
 
-Q_DECLARE_METATYPE(SortingStep)
-Q_DECLARE_METATYPE(GraphStep)
+enum CellType {
+    WALL = 0,
+    PATH = 1,
+    VISITED = 2,
+    START_POINT = 3,
+    END_POINT = 4
+};
 
-// We will add GraphStep and MazeStep here later
+struct MazeStep {
+    // 2D Grid: rows x cols
+    QVector<QVector<int>> grid;
+    QString statusMessage;
+};
+
+Q_DECLARE_METATYPE(GraphStep)
+Q_DECLARE_METATYPE(SortingStep)
+Q_DECLARE_METATYPE(MazeStep)

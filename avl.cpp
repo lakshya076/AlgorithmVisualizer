@@ -1,13 +1,11 @@
 #include "avl.h"
 #include <QQueue>
-#include <cmath>     // For std::pow
-#include <algorithm> // For std::max
+#include <cmath>
+#include <algorithm>
 
 // Define constants for layout
 const int LEVEL_HEIGHT = 80;
-const int CANVAS_WIDTH = 1200; // Assume a default width for layout
-
-// --- Constructor & Public Methods ---
+const int CANVAS_WIDTH = 1200;
 
 AVL::AVL() : m_root(nullptr), m_nextNodeId(0) {}
 
@@ -26,19 +24,18 @@ void AVL::clear()
     m_nextNodeId = 0;
 }
 
-// --- UPDATED insert ---
 QList<QVariant> AVL::insert(int value)
 {
     QList<QVariant> history;
     history.append(QVariant::fromValue(createSnapshot("Inserting " + QString::number(value))));
 
-    // 1. Call recursive insert. Positions will be wrong inside here.
+    // Call recursive insert.
     m_root = insertRecursive(m_root, value, 0, history);
 
-    // 2. NOW, recalculate all positions for the entire tree
+    // Recalculate all positions for the entire tree
     updatePositions();
 
-    // 3. Add a final snapshot with the correct layout
+    // Add a final snapshot with the correct layout
     GraphStep finalStep = createSnapshot("Inserted " + QString::number(value) + ". Balancing complete.");
 
     // Find the new node to highlight it
@@ -74,23 +71,16 @@ QList<QVariant> AVL::remove(int value)
     return history;
 }
 
-// --- Recursive Algorithm Helpers ---
-
-// --- UPDATED insertRecursive (simplified) ---
 AVL::TreeNode* AVL::insertRecursive(AVL::TreeNode* node, int value, int level, QList<QVariant>& history)
 {
-    // --- 1. Standard BST Insert ---
     if (node == nullptr) {
-        // Create new node. Note: QPointF() is just (0,0) - it's temporary.
         TreeNode* newNode = new TreeNode(value, m_nextNodeId++, level, QPointF());
 
         GraphStep step = createSnapshot("Found spot. Inserting " + QString::number(value));
-        // We add the node/edge manually, but its position will be wrong in this frame.
-        // This is OK, as the *next* step will show it corrected.
         NodeState ns;
         ns.id = newNode->id;
         ns.label = QString::number(newNode->value);
-        ns.position = QPointF(50, 50); // Just put it in the corner for this one frame
+        ns.position = QPointF(50, 50);
         ns.color = Qt::green;
         step.nodes.append(ns);
 

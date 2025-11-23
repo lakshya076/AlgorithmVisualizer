@@ -1,57 +1,50 @@
 #include "mainwindow.h"
 #include "visualizercontroller.h"
 #include "algorithmcanvas.h"
+#include "datastructures.h"
 
-// Include all necessary widget headers
 #include <QComboBox>
 #include <QPushButton>
 #include <QSlider>
 #include <QLabel>
+#include <QTextEdit>
 #include <QHBoxLayout>
 #include <QVBoxLayout>
 #include <QWidget>
+#include <QGroupBox>
+#include <QScrollBar>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
 {
+    qRegisterMetaType<GraphStep>("GraphStep");
+    qRegisterMetaType<SortingStep>("SortingStep");
+
     m_controller = new VisualizerController(this);
     m_canvas = new AlgorithmCanvas(this);
 
     setupUI();
     connectSignals();
 
-    // Trigger the controller to load the default algorithm's steps
-    m_controller->onAlgorithmSelected(m_algBox->currentText());
+    onAlgorithmChanged(m_algBox->currentText());
 
-    resize(1200, 800);
+    showMaximized();
     setWindowTitle("Algorithm Visualizer");
 }
 
-MainWindow::~MainWindow()
-{
-    // QObject parent-child relationships handle memory deletion
-}
+MainWindow::~MainWindow() {}
 
 void MainWindow::setupUI()
 {
-    // 1. Create all widgets
     m_algBox = new QComboBox;
-
-    // --- UPDATE THIS BLOCK ---
     m_algBox->addItems({
-        "Bubble Sort",
-        "Insertion Sort",
-        "Selection Sort",
-        "Quick Sort",
-        "Merge Sort",
-        "BST Insert",
-        "BST Remove",
-        "AVL Insert", // <-- ADD THIS
-        "AVL Remove"  // <-- ADD THIS
+        "Bubble Sort", "Insertion Sort", "Selection Sort", "Quick Sort", "Merge Sort",
+        "BST Insert", "BST Remove", "AVL Insert", "AVL Remove",
+        "Graph Generate", "Graph BFS", "Graph DFS", "Graph Dijkstra", "Graph Prim's MST",
+        "Maze Generate"
     });
-    // -------------------------
 
-    m_shuffleButton = new QPushButton("Shuffle / New Data");
+    m_shuffleButton = new QPushButton("Shuffle Data");
     m_startButton = new QPushButton("Start");
     m_pauseButton = new QPushButton("Pause");
     m_stopButton = new QPushButton("Stop");
@@ -60,10 +53,9 @@ void MainWindow::setupUI()
 
     m_speedLabel = new QLabel("Speed:");
     m_speedSlider = new QSlider(Qt::Horizontal);
-    m_speedSlider->setRange(1, 100); // 1 (slow) to 100 (fast)
-    m_speedSlider->setValue(80); // Default speed
+    m_speedSlider->setRange(1, 100);
+    m_speedSlider->setValue(80);
 
-    // 2. Create control panel layout
     QHBoxLayout* controlLayout = new QHBoxLayout;
     controlLayout->addWidget(m_algBox);
     controlLayout->addWidget(m_shuffleButton);
@@ -73,21 +65,33 @@ void MainWindow::setupUI()
     controlLayout->addWidget(m_stopButton);
     controlLayout->addWidget(m_prevButton);
     controlLayout->addWidget(m_nextButton);
-    controlLayout->addStretch(); // Pushes speed slider to the right
+    controlLayout->addStretch();
+
     controlLayout->addWidget(m_speedLabel);
     controlLayout->addWidget(m_speedSlider);
 
     QWidget* controlPanel = new QWidget;
     controlPanel->setLayout(controlLayout);
-    controlPanel->setFixedHeight(50); // Give the control panel a fixed height
+    controlPanel->setFixedHeight(60);
 
-    // 3. Create main layout
+    m_logDisplay = new QTextEdit;
+    m_logDisplay->setReadOnly(true);
+    m_logDisplay->setStyleSheet("font-family: Consolas, Monospace; font-size: 14px;");
+
+    QGroupBox* logGroup = new QGroupBox("Algorithm Log");
+    QVBoxLayout* logLayout = new QVBoxLayout;
+    logLayout->addWidget(m_logDisplay);
+    logGroup->setLayout(logLayout);
+    logGroup->setFixedWidth(350);
+
+    QHBoxLayout* middleLayout = new QHBoxLayout;
+    middleLayout->addWidget(m_canvas, 1);
+    middleLayout->addWidget(logGroup, 0);
+
     QVBoxLayout* mainLayout = new QVBoxLayout;
     mainLayout->addWidget(controlPanel);
-    mainLayout->addWidget(m_canvas);
-    mainLayout->setStretchFactor(m_canvas, 1); // Makes canvas fill space
+    mainLayout->addLayout(middleLayout);
 
-    // 4. Set central widget
     QWidget* centralWidget = new QWidget;
     centralWidget->setLayout(mainLayout);
     setCentralWidget(centralWidget);
@@ -95,9 +99,8 @@ void MainWindow::setupUI()
 
 void MainWindow::connectSignals()
 {
-    // Connect UI controls to the Controller's slots
-    connect(m_algBox, &QComboBox::currentTextChanged, m_controller, &VisualizerController::onAlgorithmSelected);
-    connect(m_shuffleButton, &QPushButton::clicked, m_controller, &VisualizerController::onShuffle);
+    connect(m_algBox, &QComboBox::currentTextChanged, this, &MainWindow::onAlgorithmChanged);
+
     connect(m_startButton, &QPushButton::clicked, m_controller, &VisualizerController::onStart);
     connect(m_pauseButton, &QPushButton::clicked, m_controller, &VisualizerController::onPause);
     connect(m_stopButton, &QPushButton::clicked, m_controller, &VisualizerController::onStop);
@@ -105,14 +108,55 @@ void MainWindow::connectSignals()
     connect(m_nextButton, &QPushButton::clicked, m_controller, &VisualizerController::onNext);
     connect(m_speedSlider, &QSlider::valueChanged, m_controller, &VisualizerController::onSpeedChanged);
 
-    // Special case: When shuffle is clicked, it must re-trigger the algorithm selection
+    // --- UPDATED LOGIC: Just Generate, Don't Start ---
     connect(m_shuffleButton, &QPushButton::clicked, this, [this](){
+        m_controller->onShuffle();
+        m_logDisplay->clear();
+        // This reloads the algorithm (generating new graph/array) and draws Step 0
         m_controller->onAlgorithmSelected(m_algBox->currentText());
+        // m_controller->onStart(); <--- REMOVED THIS
     });
 
-    // Connect the Controller's signal to the Canvas's slot
-    connect(m_controller, &VisualizerController::requestRedraw, m_canvas, &AlgorithmCanvas::drawStep);
+    // Clear logs on stop
+    connect(m_stopButton, &QPushButton::clicked, m_logDisplay, &QTextEdit::clear);
 
-    // Trigger the controller to update the speed on startup
+    connect(m_controller, &VisualizerController::requestRedraw, m_canvas, &AlgorithmCanvas::drawStep);
+    connect(m_controller, &VisualizerController::requestRedraw, this, &MainWindow::updateLogFromStep);
+    connect(m_controller, &VisualizerController::logMessage, this, &MainWindow::appendLog);
+
     m_controller->onSpeedChanged(m_speedSlider->value());
+}
+
+void MainWindow::onAlgorithmChanged(const QString& algName)
+{
+    if (algName.contains("Graph")) {
+        m_shuffleButton->setText("New Random Graph");
+    } else {
+        m_shuffleButton->setText("Shuffle Data");
+    }
+
+    m_logDisplay->clear();
+    m_controller->onAlgorithmSelected(algName);
+}
+
+void MainWindow::appendLog(const QString& message)
+{
+    m_logDisplay->append(message);
+    m_logDisplay->verticalScrollBar()->setValue(m_logDisplay->verticalScrollBar()->maximum());
+}
+
+void MainWindow::updateLogFromStep(const QVariant& step)
+{
+    QString message;
+    if (step.canConvert<SortingStep>()) {
+        message = step.value<SortingStep>().statusMessage;
+    }
+    else if (step.canConvert<GraphStep>()) {
+        message = step.value<GraphStep>().statusMessage;
+    }
+
+    if (!message.isEmpty()) {
+        m_logDisplay->append(message);
+        m_logDisplay->verticalScrollBar()->setValue(m_logDisplay->verticalScrollBar()->maximum());
+    }
 }

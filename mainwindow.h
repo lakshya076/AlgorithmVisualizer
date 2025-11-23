@@ -1,12 +1,13 @@
 #pragma once
 
 #include <QMainWindow>
+#include "datastructures.h"
 
-// Forward declarations to avoid including full headers
 class QComboBox;
 class QPushButton;
 class QSlider;
 class QLabel;
+class QTextEdit;
 class AlgorithmCanvas;
 class VisualizerController;
 
@@ -18,17 +19,18 @@ public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
+public slots:
+    void appendLog(const QString& message);
+
 private:
     void setupUI();
     void connectSignals();
+    void updateLogFromStep(const QVariant& step);
+    void onAlgorithmChanged(const QString& algName);
 
-    // Controller
     VisualizerController* m_controller;
-
-    // Drawing Widget
     AlgorithmCanvas* m_canvas;
 
-    // UI Control Widgets
     QComboBox* m_algBox;
     QPushButton* m_shuffleButton;
     QPushButton* m_startButton;
@@ -36,6 +38,9 @@ private:
     QPushButton* m_stopButton;
     QPushButton* m_prevButton;
     QPushButton* m_nextButton;
+
     QSlider* m_speedSlider;
     QLabel* m_speedLabel;
+
+    QTextEdit* m_logDisplay;
 };

@@ -21,7 +21,7 @@ private:
         int value;
         TreeNode *left;
         TreeNode *right;
-        int height;     // <-- AVL addition
+        int height;
 
         int id;         // Unique ID for visualization
         QPointF pos;    // Position on canvas
@@ -36,8 +36,6 @@ private:
     int m_nextNodeId;
 
     // --- Recursive Algorithm Helpers ---
-
-    // *** CORRECTED SIGNATURE ***: Removed pos and parent
     TreeNode* insertRecursive(TreeNode* node, int value, int level, QList<QVariant>& history);
 
     TreeNode* removeRecursive(TreeNode* node, int value, QList<QVariant>& history);
@@ -50,13 +48,10 @@ private:
     TreeNode* rightRotate(TreeNode* y, QList<QVariant>& history);
     TreeNode* leftRotate(TreeNode* x, QList<QVariant>& history);
 
-    // *** CORRECTED SIGNATURE ***: Removed value
     TreeNode* balance(TreeNode* node, QList<QVariant>& history);
 
-    TreeNode* balanceForRemove(TreeNode* node, QList<QVariant>& history); // Helper for balancing on remove
+    TreeNode* balanceForRemove(TreeNode* node, QList<QVariant>& history);
 
-
-    // --- Visualization & Layout Helpers ---
     GraphStep createSnapshot(const QString& message);
     void populateSnapshot(TreeNode* node, GraphStep& step);
     void updatePositions();

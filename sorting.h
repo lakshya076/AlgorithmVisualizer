@@ -5,7 +5,6 @@
 #include <QVariant>
 #include <QVector>
 
-// We use a namespace to group all our sorting algorithms
 namespace Sorting
 {
 QList<QVariant> bubbleSort(QVector<int> data);

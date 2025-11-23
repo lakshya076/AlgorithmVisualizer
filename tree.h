@@ -38,8 +38,6 @@ private:
     TreeNode* removeRecursive(TreeNode* node, int value, QList<QVariant>& history);
     TreeNode* findMin(TreeNode* node);
 
-    // --- Visualization & Layout Helpers ---
-
     GraphStep createSnapshot(const QString& message);
     void populateSnapshot(TreeNode* node, GraphStep& step);
 
