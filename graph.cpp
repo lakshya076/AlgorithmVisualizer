@@ -7,6 +7,9 @@
 #include <queue>
 #include <algorithm>
 
+const int CANVAS_WIDTH = 1200;
+const int CANVAS_HEIGHT = 700;
+
 Graph::Graph() : m_nodeCount(0) {}
 
 QList<QVariant> Graph::generateRandomGraph(int nodeCount)
@@ -18,27 +21,24 @@ QList<QVariant> Graph::generateRandomGraph(int nodeCount)
 
     QList<QVariant> history;
 
-    // Grid Layout (Normalized Coordinates 0.0 to 1.0)
-    // Assume a standard aspect ratio of 16:9 for calculating the grid shape, but the positions will be stored as ratios (0.0 - 1.0).
-    double aspectRatio = 16.0 / 9.0;
+    // 1. Position Nodes in a Grid
+    double aspectRatio = (double)CANVAS_WIDTH / CANVAS_HEIGHT;
     int cols = std::ceil(std::sqrt(nodeCount * aspectRatio));
     int rows = std::ceil((double)nodeCount / cols);
 
-    // Calculate normalized spacing
-    double hSpacing = 1.0 / (cols + 1);
-    double vSpacing = 1.0 / (rows + 1);
+    double hSpacing = CANVAS_WIDTH / (cols + 1);
+    double vSpacing = CANVAS_HEIGHT / (rows + 1);
 
     for (int i = 0; i < nodeCount; ++i) {
-        int r = i / cols; // Row index
-        int c = i % cols; // Col index
+        int r = i / cols;
+        int c = i % cols;
 
-        // Calculate X and Y as percentages of the screen
         double x = hSpacing * (c + 1);
         double y = vSpacing * (r + 1);
-
         m_nodePositions[i] = QPointF(x, y);
     }
 
+    // 2. Generate Edges (Locally Only)
     for (int i = 0; i < nodeCount; ++i) {
         int r1 = i / cols;
         int c1 = i % cols;
@@ -62,19 +62,15 @@ QList<QVariant> Graph::generateRandomGraph(int nodeCount)
             if (connected) {
                 m_adjList[i].append(j);
                 m_adjList[j].append(i);
-
                 m_edgeWeights[{std::min(i,j), std::max(i,j)}] = QRandomGenerator::global()->bounded(1, 10);
             }
         }
     }
 
-    // If a node is isolated, force a connection to a neighbor
+    // 3. Ensure Connectivity
     for(int i = 0; i < nodeCount; ++i) {
         if (!m_adjList.contains(i) || m_adjList[i].isEmpty()) {
-            // Try to connect to previous node (i-1) or next node (i+1)
             int neighbor = (i > 0) ? i - 1 : i + 1;
-
-            // Bounds check
             if (neighbor < nodeCount) {
                 m_adjList[i].append(neighbor);
                 m_adjList[neighbor].append(i);
