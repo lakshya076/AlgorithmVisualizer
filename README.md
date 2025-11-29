@@ -1,10 +1,14 @@
-# AlgVis
+# Algorithm Visualizer
 
-Algorithm Visualizer created with Qt and C++. Also works on GitHub Pages using WebAssembly.
+Algorithm Visualizer created with Qt and C++
 
-https://lakshya076.github.io/AlgorithmVisualizer/
+Also works on GitHub Pages using WebAssembly.
 
-Features include
+Pages Link -> https://lakshya076.github.io/AlgorithmVisualizer/
+
+#### Note: The program won't display things correctly on the web version since I have not optimized it for that.
+
+## Features
 - Sorting algorithms
   - Merge Sort
   - Quick Sort
