@@ -42,7 +42,6 @@ void Maze::carve(int x, int y, QList<QVariant>& history)
     QVector<QPair<int, int>> dirs = { {0, -2}, {0, 2}, {-2, 0}, {2, 0} };
 
     // Randomize directions
-    // We can't use std::shuffle easily with QVector, so we swap manually
     for (int i = 0; i < dirs.size(); ++i) {
         int j = QRandomGenerator::global()->bounded(dirs.size());
         qSwap(dirs[i], dirs[j]);

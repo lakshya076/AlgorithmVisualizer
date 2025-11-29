@@ -6,6 +6,7 @@
 #include <QRandomGenerator>
 #include <algorithm>
 #include <QStringList>
+#include <random>
 
 VisualizerController::VisualizerController(QObject *parent)
     : QObject(parent),
@@ -22,7 +23,6 @@ VisualizerController::VisualizerController(QObject *parent)
 void VisualizerController::generateRandomData()
 {
     m_randomData.clear();
-    // Generate 50 random numbers
     for(int i = 0; i < 50; ++i) {
         m_randomData.append(QRandomGenerator::global()->bounded(1, 100));
     }
@@ -76,27 +76,41 @@ void VisualizerController::onAlgorithmSelected(const QString& algName)
     // --- TREES ---
     else if (algName.contains("BST") || algName.contains("AVL"))
     {
-        // Use a subset of random data for trees (15 nodes is usually enough)
         int treeSize = qMin(15, m_randomData.size());
         QVector<int> treeData = m_randomData.mid(0, treeSize);
 
-        if (algName == "BST Insert") { m_bst.clear(); for(int v : treeData) m_stepHistory.append(m_bst.insert(v)); }
+        // Prepare a random engine for shuffling
+        std::random_device rd;
+        std::mt19937 g(rd());
+
+        if (algName == "BST Insert") {
+            m_bst.clear();
+            for(int v : treeData) m_stepHistory.append(m_bst.insert(v));
+        }
         else if (algName == "BST Remove") {
             m_bst.clear();
             for(int v : treeData) m_bst.insert(v);
             QVector<int> removalOrder = treeData;
-            std::random_shuffle(removalOrder.begin(), removalOrder.end());
+
+            std::shuffle(removalOrder.begin(), removalOrder.end(), g);
+
             for (int v : removalOrder) m_stepHistory.append(m_bst.remove(v));
         }
-        else if (algName == "AVL Insert") { m_avl.clear(); for(int v : treeData) m_stepHistory.append(m_avl.insert(v)); }
+        else if (algName == "AVL Insert") {
+            m_avl.clear();
+            for(int v : treeData) m_stepHistory.append(m_avl.insert(v));
+        }
         else if (algName == "AVL Remove") {
             m_avl.clear();
             for(int v : treeData) m_avl.insert(v);
             QVector<int> removalOrder = treeData;
-            std::random_shuffle(removalOrder.begin(), removalOrder.end());
+
+            std::shuffle(removalOrder.begin(), removalOrder.end(), g);
+
             for (int v : removalOrder) m_stepHistory.append(m_avl.remove(v));
         }
     }
+
     // --- GRAPHS ---
     else if (algName.contains("Graph"))
     {
@@ -144,13 +158,13 @@ void VisualizerController::onAlgorithmSelected(const QString& algName)
             }
         }
     }
+    // --- MAZE ---
     else if (algName == "Maze Generate") {
         emit logMessage("--------------------------------");
         emit logMessage("Goal: Recursive Backtracker Maze");
-        emit logMessage("Size: 41 x 25"); // Adjusted for 16:9 ratio
+        emit logMessage("Size: 41 x 25");
         emit logMessage("--------------------------------");
 
-        // Must be odd numbers
         m_stepHistory = m_maze.generateRecursiveBacktracker(41, 25);
     }
 
