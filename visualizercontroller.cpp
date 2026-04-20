@@ -3,6 +3,7 @@
 #include "tree.h"
 #include "avl.h"
 #include "graph.h"
+#include "dynamicprogramming.h"
 #include <QRandomGenerator>
 #include <algorithm>
 #include <QStringList>
@@ -63,7 +64,7 @@ void VisualizerController::onAlgorithmSelected(const QString& algName)
     m_stepHistory.clear();
     m_currentStep = 0;
 
-    // --- SORTING ---
+    // SORTING
     if (algName.contains("Sort"))
     {
         QVector<int> dataCopy = m_randomData;
@@ -73,7 +74,7 @@ void VisualizerController::onAlgorithmSelected(const QString& algName)
         else if (algName == "Quick Sort") m_stepHistory = Sorting::quickSort(dataCopy);
         else if (algName == "Merge Sort") m_stepHistory = Sorting::mergeSort(dataCopy);
     }
-    // --- TREES ---
+    // TREES
     else if (algName.contains("BST") || algName.contains("AVL"))
     {
         int treeSize = qMin(15, m_randomData.size());
@@ -110,8 +111,7 @@ void VisualizerController::onAlgorithmSelected(const QString& algName)
             for (int v : removalOrder) m_stepHistory.append(m_avl.remove(v));
         }
     }
-
-    // --- GRAPHS ---
+    // GRAPHS
     else if (algName.contains("Graph"))
     {
         int nodeCount = 50;
@@ -158,7 +158,7 @@ void VisualizerController::onAlgorithmSelected(const QString& algName)
             }
         }
     }
-    // --- MAZE ---
+    // MAZE 
     else if (algName == "Maze Generate") {
         emit logMessage("--------------------------------");
         emit logMessage("Goal: Recursive Backtracker Maze");
@@ -166,6 +166,38 @@ void VisualizerController::onAlgorithmSelected(const QString& algName)
         emit logMessage("--------------------------------");
 
         m_stepHistory = m_maze.generateRecursiveBacktracker(41, 25);
+    }
+    // DYNAMIC PROGRAMMING
+    else if (algName == "0/1 Knapsack (DP)") {
+        int capacity = 10;
+        int itemCount = 6;
+        QVector<int> weights;
+        QVector<int> values;
+
+        emit logMessage("--------------------------------");
+        emit logMessage("Goal: 0/1 Knapsack (DP)");
+        emit logMessage("Capacity: " + QString::number(capacity));
+        
+        for (int i = 0; i < itemCount; ++i) {
+            weights.append(QRandomGenerator::global()->bounded(1, capacity));
+            values.append(QRandomGenerator::global()->bounded(10, 100));
+            emit logMessage(QString("Item %1: Value %2, Weight %3").arg(i+1).arg(values[i]).arg(weights[i]));
+        }
+        emit logMessage("--------------------------------");
+
+        m_stepHistory = DynamicProgramming::knapsack01(capacity, weights, values);
+    }
+    else if (algName == "Longest Common Subsequence (DP)") {
+        QString s1 = "ABCBDAB";
+        QString s2 = "BDCABA";
+
+        emit logMessage("--------------------------------");
+        emit logMessage("Goal: Longest Common Subsequence (DP)");
+        emit logMessage("String 1: " + s1);
+        emit logMessage("String 2: " + s2);
+        emit logMessage("--------------------------------");
+
+        m_stepHistory = DynamicProgramming::lcs(s1, s2);
     }
 
     if (!m_stepHistory.isEmpty()) {

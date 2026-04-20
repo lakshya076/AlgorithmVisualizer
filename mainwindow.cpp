@@ -19,6 +19,7 @@ MainWindow::MainWindow(QWidget *parent)
 {
     qRegisterMetaType<GraphStep>("GraphStep");
     qRegisterMetaType<SortingStep>("SortingStep");
+    qRegisterMetaType<DPStep>("DPStep");
 
     m_controller = new VisualizerController(this);
     m_canvas = new AlgorithmCanvas(this);
@@ -41,7 +42,7 @@ void MainWindow::setupUI()
         "Bubble Sort", "Insertion Sort", "Selection Sort", "Quick Sort", "Merge Sort",
         "BST Insert", "BST Remove", "AVL Insert", "AVL Remove",
         "Graph Generate", "Graph BFS", "Graph DFS", "Graph Dijkstra", "Graph Prim's MST",
-        "Maze Generate"
+        "Maze Generate", "0/1 Knapsack (DP)", "Longest Common Subsequence (DP)"
     });
 
     m_shuffleButton = new QPushButton("Shuffle Data");
@@ -153,6 +154,9 @@ void MainWindow::updateLogFromStep(const QVariant& step)
     }
     else if (step.canConvert<GraphStep>()) {
         message = step.value<GraphStep>().statusMessage;
+    }
+    else if (step.canConvert<DPStep>()) {
+        message = step.value<DPStep>().statusMessage;
     }
 
     if (!message.isEmpty()) {

@@ -22,4 +22,5 @@ private:
     void drawSortingStep(QPainter& painter, const SortingStep& step);
     void drawGraphStep(QPainter& painter, const GraphStep& step);
     void drawMazeStep(QPainter& painter, const MazeStep& step);
+    void drawDPStep(QPainter& painter, const DPStep& step);
 };

@@ -12,6 +12,8 @@ SOURCES += \
     algorithmcanvas.cpp \
     avl.cpp \
     graph.cpp \
+    knapsack.cpp \
+    lcs.cpp \
     main.cpp \
     mainwindow.cpp \
     maze.cpp \
@@ -23,6 +25,7 @@ HEADERS += \
     algorithmcanvas.h \
     avl.h \
     datastructures.h \
+    dynamicprogramming.h \
     graph.h \
     mainwindow.h \
     maze.h \

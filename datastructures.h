@@ -58,6 +58,28 @@ struct MazeStep {
     QString statusMessage;
 };
 
+struct DPStep {
+    QVector<QVector<int>> table;
+    QString statusMessage;
+
+    int currentRow;
+    int currentCol;
+    
+    struct Item {
+        int weight;
+        int value;
+    };
+    QVector<Item> items;
+    int capacity;
+
+    QList<QPoint> highlightedCells; // Cells currently being used for calculation
+    QList<QPoint> resultCells;      // Cells that form the final result
+    QList<int> selectedItems; // Indices of items that make up the optimal solution
+    
+    QString s1, s2; // For LCS
+};
+
 Q_DECLARE_METATYPE(GraphStep)
 Q_DECLARE_METATYPE(SortingStep)
 Q_DECLARE_METATYPE(MazeStep)
+Q_DECLARE_METATYPE(DPStep)

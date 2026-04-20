@@ -37,6 +37,122 @@ void AlgorithmCanvas::paintEvent(QPaintEvent* event)
     else if (m_currentStep.canConvert<MazeStep>()) {
         drawMazeStep(painter, m_currentStep.value<MazeStep>());
     }
+    else if (m_currentStep.canConvert<DPStep>()) {
+        drawDPStep(painter, m_currentStep.value<DPStep>());
+    }
+}
+
+void AlgorithmCanvas::drawDPStep(QPainter& painter, const DPStep& step)
+{
+    int rows = step.table.size();
+    if (rows == 0) return;
+    int cols = step.table[0].size();
+
+    int margin = 60;
+    int headerHeight = 100;
+    int itemPanelWidth = (step.items.isEmpty()) ? 0 : 200;
+
+    int availableWidth = width() - 2 * margin - itemPanelWidth;
+    int availableHeight = height() - 2 * margin - headerHeight;
+
+    int cellSize = qMin(availableWidth / cols, availableHeight / rows);
+    cellSize = qMin(cellSize, 60); // Limit cell size
+
+    int tableWidth = cellSize * cols;
+    int tableHeight = cellSize * rows;
+
+    int startX = margin + (availableWidth - tableWidth) / 2;
+    int startY = margin + headerHeight + (availableHeight - tableHeight) / 2;
+
+    // Draw Item List (for Knapsack)
+    if (!step.items.isEmpty()) {
+        int itemX = width() - margin - itemPanelWidth + 20;
+        int itemY = startY;
+        painter.setFont(QFont("Arial", 12, QFont::Bold));
+        painter.drawText(itemX, itemY - 20, "Items (Value, Weight):");
+        painter.setFont(QFont("Arial", 10));
+        for (int i = 0; i < step.items.size(); ++i) {
+            QRect itemRect(itemX, itemY + i * 30, itemPanelWidth - 20, 25);
+            if (step.selectedItems.contains(i)) {
+                painter.setBrush(QColor(100, 255, 100, 150));
+            } else if (i == step.currentRow - 1) {
+                painter.setBrush(QColor(255, 255, 100, 150));
+            } else {
+                painter.setBrush(Qt::NoBrush);
+            }
+            painter.setPen(Qt::black);
+            painter.drawRect(itemRect);
+            painter.drawText(itemRect.adjusted(5, 0, 0, 0), Qt::AlignVCenter, 
+                             QString("Item %1: (%2, %3)").arg(i+1).arg(step.items[i].value).arg(step.items[i].weight));
+        }
+
+        // Draw Capacity
+        painter.setFont(QFont("Arial", 12, QFont::Bold));
+        painter.drawText(margin, margin + 40, "Knapsack Capacity: " + QString::number(step.capacity));
+    }
+
+    // Draw LCS Strings
+    if (!step.s1.isEmpty() || !step.s2.isEmpty()) {
+        painter.setFont(QFont("Arial", 12, QFont::Bold));
+        painter.setPen(Qt::white);
+        painter.drawText(margin, margin + 40, "LCS: " + step.s1 + " and " + step.s2);
+    }
+
+    // Draw Table Headers
+    painter.setFont(QFont("Arial", 10));
+    painter.setPen(Qt::white);
+    // Row headers
+    for (int i = 0; i < rows; ++i) {
+        QString label;
+        if (!step.s1.isEmpty()) {
+            label = (i == 0) ? "∅" : QString(step.s1[i-1]);
+        } else {
+            label = (i == 0) ? "None" : QString("Item %1").arg(i);
+        }
+        painter.drawText(startX - 60, startY + i * cellSize, 55, cellSize, Qt::AlignCenter, label);
+    }
+    // Col headers
+    for (int j = 0; j < cols; ++j) {
+        QString label;
+        if (!step.s2.isEmpty()) {
+            label = (j == 0) ? "∅" : QString(step.s2[j-1]);
+        } else {
+            label = QString::number(j);
+        }
+        painter.drawText(startX + j * cellSize, startY - 25, cellSize, 20, Qt::AlignCenter, label);
+    }
+
+    // Draw Table Cells
+    for (int i = 0; i < rows; ++i) {
+        for (int j = 0; j < cols; ++j) {
+            QRect cellRect(startX + j * cellSize, startY + i * cellSize, cellSize, cellSize);
+            
+            QColor bgColor = Qt::white;
+
+            // Highlight logic for backtracking / final result
+            if (step.currentRow == -1) {
+                if (step.resultCells.contains(QPoint(j, i))) {
+                    bgColor = Qt::green;
+                } else if (step.highlightedCells.contains(QPoint(j, i))) {
+                    bgColor = QColor(200, 200, 200);
+                }
+            } else if (i == step.currentRow && j == step.currentCol) {
+                bgColor = QColor(255, 165, 0);
+            } else if (step.highlightedCells.contains(QPoint(j, i))) {
+                bgColor = QColor(135, 206, 250);
+            } else if (i <= step.currentRow && (i < step.currentRow || j < step.currentCol)) {
+                bgColor = QColor(240, 240, 240);
+            }
+
+            painter.setBrush(bgColor);
+            painter.setPen(Qt::black);
+            painter.drawRect(cellRect);
+
+            if (i < step.currentRow || (i == step.currentRow && j <= step.currentCol) || step.currentRow == -1) {
+                painter.drawText(cellRect, Qt::AlignCenter, QString::number(step.table[i][j]));
+            }
+        }
+    }
 }
 
 void AlgorithmCanvas::drawSortingStep(QPainter& painter, const SortingStep& step)
