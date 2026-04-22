@@ -218,6 +218,25 @@ void AlgorithmCanvas::drawGraphStep(QPainter& painter, const GraphStep& step)
             painter.setPen(QPen(es.color, 2));
             painter.drawLine(p1, p2);
 
+            // Draw Arrow Head for Directed Edges
+            if (step.isDirected) {
+                double angle = std::atan2(p2.y() - p1.y(), p2.x() - p1.x());
+                const int arrowSize = 10;
+                const int nodeRadius = 20;
+                const double PI = 3.14159265358979323846;
+
+                // Adjust p2 to be at the edge of the node
+                QPointF arrowPos = p2 - QPointF(std::cos(angle) * nodeRadius, std::sin(angle) * nodeRadius);
+
+                QPointF pA = arrowPos - QPointF(std::cos(angle + PI / 6) * arrowSize,
+                                                std::sin(angle + PI / 6) * arrowSize);
+                QPointF pB = arrowPos - QPointF(std::cos(angle - PI / 6) * arrowSize,
+                                                std::sin(angle - PI / 6) * arrowSize);
+
+                painter.setBrush(es.color);
+                painter.drawPolygon(QPolygonF() << arrowPos << pA << pB);
+            }
+
             // Draw Weight (if exists)
             if (!es.weightLabel.isEmpty()) {
                 // Calculate midpoint

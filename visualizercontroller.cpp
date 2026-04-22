@@ -120,6 +120,10 @@ void VisualizerController::onAlgorithmSelected(const QString& algName)
             m_stepHistory = m_graph.generateRandomGraph(nodeCount);
             m_graphGenerated = true;
         }
+        else if (algName == "Graph Generate DAG") {
+            m_stepHistory = m_graph.generateRandomDAG(nodeCount);
+            m_graphGenerated = true;
+        }
         else {
             if (!m_graphGenerated) {
                 m_graph.generateRandomGraph(nodeCount);

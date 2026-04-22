@@ -41,7 +41,7 @@ void MainWindow::setupUI()
     m_algBox->addItems({
         "Bubble Sort", "Insertion Sort", "Selection Sort", "Quick Sort", "Merge Sort",
         "BST Insert", "BST Remove", "AVL Insert", "AVL Remove",
-        "Graph Generate", "Graph BFS", "Graph DFS", "Graph Dijkstra", "Graph Prim's MST",
+        "Graph Generate", "Graph Generate DAG", "Graph BFS", "Graph DFS", "Graph Dijkstra", "Graph Prim's MST",
         "Maze Generate", "0/1 Knapsack (DP)", "Longest Common Subsequence (DP)"
     });
 

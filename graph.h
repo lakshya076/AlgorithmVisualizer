@@ -13,6 +13,7 @@ public:
     Graph();
 
     QList<QVariant> generateRandomGraph(int nodeCount = 10);
+    QList<QVariant> generateRandomDAG(int nodeCount = 10);
 
     QList<QVariant> bfs(int startNodeId);
     QList<QVariant> dfs(int startNodeId);
@@ -25,11 +26,13 @@ private:
     QMap<QPair<int, int>, int> m_edgeWeights;
     QMap<int, QPointF> m_nodePositions;
     int m_nodeCount;
+    bool m_isDirected = false;
 
     void dfsRecursive(int node, QSet<int>& visited, QList<QVariant>& history, QList<int>& traversalOrder);
 
     GraphStep createSnapshot(const QString& message, const QSet<int>& visited,
                              const QSet<int>& currentQueueStack, int currentNode = -1,
                              const QMap<int, int>& distances = {},
-                             const QSet<QPair<int, int>>& pathEdges = {});
+                             const QSet<QPair<int, int>>& pathEdges = {},
+                             bool isDirected = false);
 };

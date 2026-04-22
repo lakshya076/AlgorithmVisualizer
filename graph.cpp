@@ -283,10 +283,12 @@ QList<QVariant> Graph::primMST(int startNodeId)
 GraphStep Graph::createSnapshot(const QString& message, const QSet<int>& visited,
                                 const QSet<int>& currentQueueStack, int currentNode,
                                 const QMap<int, int>& distances,
-                                const QSet<QPair<int, int>>& pathEdges)
+                                const QSet<QPair<int, int>>& pathEdges,
+                                bool isDirected)
 {
     GraphStep step;
     step.statusMessage = message;
+    step.isDirected = isDirected;
 
     // Create Nodes
     for (int i = 0; i < m_nodeCount; ++i) {
@@ -315,27 +317,68 @@ GraphStep Graph::createSnapshot(const QString& message, const QSet<int>& visited
         int u = it.key();
         const QList<int>& neighbors = it.value();
         for (int v : neighbors) {
-            if (u < v) {
-                EdgeState es;
-                es.fromId = u;
-                es.toId = v;
+            if (!isDirected && u > v) continue; 
 
-                int w = m_edgeWeights[{u, v}];
-                es.weightLabel = QString::number(w);
+            EdgeState es;
+            es.fromId = u;
+            es.toId = v;
 
-                // Check for Path/MST edges
-                if (pathEdges.contains({u, v})) {
-                    es.color = QColor(255, 165, 0);
-                }
-                else if (visited.contains(u) && visited.contains(v)) {
-                    es.color = Qt::lightGray;
-                } else {
-                    es.color = Qt::white;
-                }
-                step.edges.append(es);
+            int w = m_edgeWeights.contains({std::min(u,v), std::max(u,v)}) ? m_edgeWeights[{std::min(u,v), std::max(u,v)}] : 0;
+            if (w > 0) es.weightLabel = QString::number(w);
+
+            // Check for Path/MST edges
+            if (pathEdges.contains({std::min(u,v), std::max(u,v)})) {
+                es.color = QColor(255, 165, 0);
             }
+            else if (visited.contains(u) && visited.contains(v)) {
+                es.color = Qt::lightGray;
+            } else {
+                es.color = Qt::white;
+            }
+            step.edges.append(es);
         }
     }
 
     return step;
+}
+
+QList<QVariant> Graph::generateRandomDAG(int nodeCount)
+{
+    m_adjList.clear();
+    m_nodePositions.clear();
+    m_edgeWeights.clear();
+    m_nodeCount = nodeCount;
+    m_isDirected = true;
+
+    QList<QVariant> history;
+
+    double aspectRatio = (double)CANVAS_WIDTH / CANVAS_HEIGHT;
+    int cols = std::ceil(std::sqrt(nodeCount * aspectRatio));
+    int rows = std::ceil((double)nodeCount / cols);
+
+    double hSpacing = CANVAS_WIDTH / (cols + 1);
+    double vSpacing = CANVAS_HEIGHT / (rows + 1);
+
+    for (int i = 0; i < nodeCount; ++i) {
+        int r = i / cols;
+        int c = i % cols;
+        m_nodePositions[i] = QPointF(hSpacing * (c + 1), vSpacing * (r + 1));
+    }
+
+    for (int i = 0; i < nodeCount; ++i) {
+        for (int j = i + 1; j < nodeCount; ++j) {
+            int r1 = i / cols, c1 = i % cols;
+            int r2 = j / cols, c2 = j % cols;
+            int dist = std::abs(r1-r2) + std::abs(c1-c2);
+
+            if (dist == 1 || (dist == 2 && QRandomGenerator::global()->bounded(100) < 30)) {
+                if (QRandomGenerator::global()->bounded(100) < 60) {
+                    m_adjList[i].append(j);
+                }
+            }
+        }
+    }
+
+    history.append(QVariant::fromValue(createSnapshot("Generated Directed Acyclic Graph (DAG) with " + QString::number(nodeCount) + " nodes.", {}, {}, -1, {}, {}, true)));
+    return history;
 }

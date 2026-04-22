@@ -42,6 +42,9 @@ struct GraphStep {
     QList<NodeState> nodes;
     QList<EdgeState> edges;
     QString statusMessage;
+    bool isDirected;
+
+    GraphStep() : isDirected(false) {}
 };
 
 enum CellType {
