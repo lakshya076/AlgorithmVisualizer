@@ -13,7 +13,8 @@ VisualizerController::VisualizerController(QObject *parent)
     : QObject(parent),
     m_currentStep(0),
     m_timerInterval(200),
-    m_graphGenerated(false)
+    m_graphGenerated(false),
+    m_dagGenerated(false)
 {
     m_timer = new QTimer(this);
     m_timer->setInterval(m_timerInterval);
@@ -34,6 +35,7 @@ void VisualizerController::onShuffle()
     m_timer->stop();
     generateRandomData();
     m_graphGenerated = false;
+    m_dagGenerated = false;
 }
 
 void VisualizerController::onStart() { if (!m_stepHistory.isEmpty()) m_timer->start(); }
@@ -121,8 +123,8 @@ void VisualizerController::onAlgorithmSelected(const QString& algName)
             m_graphGenerated = true;
         }
         else if (algName == "Graph Generate DAG") {
-            m_stepHistory = m_graph.generateRandomDAG(nodeCount);
-            m_graphGenerated = true;
+            m_stepHistory = m_dag.generateRandomDAG(nodeCount);
+            m_dagGenerated = true;
         }
         else {
             if (!m_graphGenerated) {

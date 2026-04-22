@@ -286,9 +286,10 @@ GraphStep Graph::createSnapshot(const QString& message, const QSet<int>& visited
                                 const QSet<QPair<int, int>>& pathEdges,
                                 bool isDirected)
 {
+    Q_UNUSED(isDirected);
     GraphStep step;
     step.statusMessage = message;
-    step.isDirected = isDirected;
+    step.isDirected = m_isDirected;
 
     // Create Nodes
     for (int i = 0; i < m_nodeCount; ++i) {
@@ -317,7 +318,7 @@ GraphStep Graph::createSnapshot(const QString& message, const QSet<int>& visited
         int u = it.key();
         const QList<int>& neighbors = it.value();
         for (int v : neighbors) {
-            if (!isDirected && u > v) continue; 
+            if (!m_isDirected && u > v) continue; 
 
             EdgeState es;
             es.fromId = u;

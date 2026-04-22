@@ -47,9 +47,11 @@ private:
     BST m_bst;
     AVL m_avl;
     Graph m_graph;
+    Graph m_dag;
     Maze m_maze;
 
     bool m_graphGenerated;
+    bool m_dagGenerated;
 
     void generateRandomData();
 };
