@@ -1,7 +1,5 @@
 #include "visualizercontroller.h"
 #include "sorting.h"
-#include "tree.h"
-#include "avl.h"
 #include "graph.h"
 #include "dynamicprogramming.h"
 #include <QRandomGenerator>
@@ -75,43 +73,6 @@ void VisualizerController::onAlgorithmSelected(const QString& algName)
         else if (algName == "Selection Sort") m_stepHistory = Sorting::selectionSort(dataCopy);
         else if (algName == "Quick Sort") m_stepHistory = Sorting::quickSort(dataCopy);
         else if (algName == "Merge Sort") m_stepHistory = Sorting::mergeSort(dataCopy);
-    }
-    // TREES
-    else if (algName.contains("BST") || algName.contains("AVL"))
-    {
-        int treeSize = qMin(15, m_randomData.size());
-        QVector<int> treeData = m_randomData.mid(0, treeSize);
-
-        // Prepare a random engine for shuffling
-        std::random_device rd;
-        std::mt19937 g(rd());
-
-        if (algName == "BST Insert") {
-            m_bst.clear();
-            for(int v : treeData) m_stepHistory.append(m_bst.insert(v));
-        }
-        else if (algName == "BST Remove") {
-            m_bst.clear();
-            for(int v : treeData) m_bst.insert(v);
-            QVector<int> removalOrder = treeData;
-
-            std::shuffle(removalOrder.begin(), removalOrder.end(), g);
-
-            for (int v : removalOrder) m_stepHistory.append(m_bst.remove(v));
-        }
-        else if (algName == "AVL Insert") {
-            m_avl.clear();
-            for(int v : treeData) m_stepHistory.append(m_avl.insert(v));
-        }
-        else if (algName == "AVL Remove") {
-            m_avl.clear();
-            for(int v : treeData) m_avl.insert(v);
-            QVector<int> removalOrder = treeData;
-
-            std::shuffle(removalOrder.begin(), removalOrder.end(), g);
-
-            for (int v : removalOrder) m_stepHistory.append(m_avl.remove(v));
-        }
     }
     // GRAPHS
     else if (algName.contains("Graph"))

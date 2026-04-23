@@ -5,8 +5,6 @@
 #include <QList>
 #include <QVariant>
 #include <QVector>
-#include "tree.h"
-#include "avl.h"
 #include "graph.h"
 #include "maze.h"
 
@@ -42,10 +40,8 @@ private:
     int m_currentStep;
     int m_timerInterval;
 
-    QVector<int> m_randomData; // Shared by Sorting and Trees
+    QVector<int> m_randomData; // Shared by Sorting
 
-    BST m_bst;
-    AVL m_avl;
     Graph m_graph;
     Graph m_dag;
     Maze m_maze;

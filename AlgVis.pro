@@ -10,7 +10,6 @@ CONFIG += c++17
 
 SOURCES += \
     algorithmcanvas.cpp \
-    avl.cpp \
     graph.cpp \
     knapsack.cpp \
     lcs.cpp \
@@ -18,19 +17,16 @@ SOURCES += \
     mainwindow.cpp \
     maze.cpp \
     sorting.cpp \
-    tree.cpp \
     visualizercontroller.cpp
 
 HEADERS += \
     algorithmcanvas.h \
-    avl.h \
     datastructures.h \
     dynamicprogramming.h \
     graph.h \
     mainwindow.h \
     maze.h \
     sorting.h \
-    tree.h \
     visualizercontroller.h
 
 FORMS += \
